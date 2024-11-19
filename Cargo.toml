@@ -1,0 +1,25 @@
+[package]
+name = "trivia"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rand = "0.8.5"
+getrandom = { version = "0.2", features = ["js"] }
+wasm-bindgen = "0.2.95"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[lints.rust]
+missing_docs = "warn"
+nonstandard-style = "warn"
+rust-2018-idioms = "warn"
+rust-2021-compatibility = "warn"
+rust-2024-compatibility = "warn"
+
+[lints.rustdoc]
+broken_intra_doc_links = "warn"
+
+[lints.clippy]
+missing_docs_in_private_items = "warn"
