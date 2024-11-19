@@ -9,6 +9,7 @@ export function __wbg_question_free(a: number, b: number): void;
 export function question_get_name(a: number, b: number): void;
 export function question_get_answers(a: number, b: number): void;
 export function question_is_correct(a: number, b: number, c: number): number;
+export function question_get_correct_answer(a: number, b: number): void;
 export function __wbindgen_add_to_stack_pointer(a: number): number;
 export function __wbindgen_free(a: number, b: number, c: number): void;
 export function __wbindgen_malloc(a: number, b: number): number;

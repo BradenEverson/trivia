@@ -21,6 +21,11 @@ export class Question {
    * @returns {boolean}
    */
   is_correct(chosen: string): boolean;
+  /**
+   * Gets the correct answer
+   * @returns {string}
+   */
+  get_correct_answer(): string;
 }
 /**
  * The Main Driver for generating new questions for the day
@@ -56,6 +61,7 @@ export interface InitOutput {
   readonly question_get_name: (a: number, b: number) => void;
   readonly question_get_answers: (a: number, b: number) => void;
   readonly question_is_correct: (a: number, b: number, c: number) => number;
+  readonly question_get_correct_answer: (a: number, b: number) => void;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_free: (a: number, b: number, c: number) => void;
   readonly __wbindgen_malloc: (a: number, b: number) => number;

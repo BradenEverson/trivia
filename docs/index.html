@@ -55,7 +55,7 @@
 
                     button.addEventListener("click", () => {
                         const isCorrect = questionToday.is_correct(answer);
-                        alert(isCorrect ? "Correct! 🎉" : "Incorrect. :((");
+                        alert(isCorrect ? "Correct! 🎉" : `Incorrect. The correct answer was ${questionToday.get_correct_answer()}`);
 
                         localStorage.setItem(todayKey, "true");
 

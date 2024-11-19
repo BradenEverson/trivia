@@ -111,6 +111,11 @@ impl Question {
     pub fn is_correct(&self, chosen: String) -> bool {
         chosen == self.correct
     }
+
+    /// Gets the correct answer
+    pub fn get_correct_answer(&self) -> String {
+        self.correct.to_string()
+    }
 }
 
 #[cfg(test)]
