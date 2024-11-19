@@ -2,22 +2,32 @@
 
 use std::{
     fs::File,
-    io::{BufRead, BufReader},
+    io::{BufRead, BufReader, Write},
 };
 
+use cached_questions::CACHED_QUESTIONS;
 use rand::seq::SliceRandom;
+use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::wasm_bindgen;
+
+pub mod cached_questions;
 
 /// The Main Driver for generating new questions for the day
 #[wasm_bindgen]
+#[derive(Serialize, Deserialize)]
 pub struct TriviaGenerator {
     /// All possible questions
     questions: Vec<Question>,
 }
 
+#[wasm_bindgen]
 impl TriviaGenerator {
-    /// Generates a new TriviaGenerator by  reading the existing files
+    /// Creates a new Trivia set from the cached JSON
     pub fn new() -> Option<Self> {
+        serde_json::from_str(CACHED_QUESTIONS).ok()?
+    }
+    /// Generates a new TriviaGenerator by  reading the existing files
+    pub fn generate() -> Option<Self> {
         let mut questions = vec![];
 
         let geography_questions = File::open("data/geography").ok()?;
@@ -36,13 +46,10 @@ impl TriviaGenerator {
                 };
                 let d = match &c {
                     None => None,
-                    Some(_) => {
-                        geo_lines.next()?.ok()?[2..].to_string();
-                        match geo_lines.next()?.ok()?.trim() {
-                            "" => None,
-                            other => Some(other[2..].to_string()),
-                        }
-                    }
+                    Some(_) => match geo_lines.next()?.ok()?.trim() {
+                        "" => None,
+                        other => Some(other[2..].to_string()),
+                    },
                 };
 
                 let question = Question {
@@ -55,7 +62,12 @@ impl TriviaGenerator {
             }
         }
 
-        Some(Self { questions })
+        let res = Self { questions };
+        let serialized = serde_json::to_string(&res).ok()?;
+        let mut out = File::create_new("data/geography.json").ok()?;
+        out.write_all(serialized.as_bytes()).ok()?;
+
+        Some(res)
     }
 
     /// Get's today's question
@@ -70,7 +82,7 @@ impl TriviaGenerator {
 
 /// A question, it's answers and a correct answer
 #[wasm_bindgen]
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Question {
     /// The question's name
     name: String,
@@ -80,24 +92,24 @@ pub struct Question {
     correct: String,
 }
 
+#[wasm_bindgen]
 impl Question {
     /// Returns the question's name
-    pub fn get_name(&self) -> &str {
-        &self.name
+    pub fn get_name(&self) -> String {
+        self.name.clone()
     }
 
     /// Returns the question answers
-    pub fn get_answers(&self) -> &[Option<String>] {
-        &self.answers
+    pub fn get_answers(&self) -> Vec<String> {
+        self.answers
+            .iter()
+            .filter_map(|answer| answer.clone())
+            .collect()
     }
 
     /// Given an answer, checks if that is the correct one
-    pub fn is_correct(&self, chosen: usize) -> bool {
-        if let Some(chosen) = &self.answers[chosen] {
-            chosen == &self.correct
-        } else {
-            false
-        }
+    pub fn is_correct(&self, chosen: String) -> bool {
+        chosen == self.correct
     }
 }
 
@@ -106,7 +118,8 @@ mod tests {
     use crate::TriviaGenerator;
 
     #[test]
-    fn ensure_trivia_generation() {
-        TriviaGenerator::new().expect("Failed to generate trivia");
+    fn cached_loading_is_valid() {
+        let _ = TriviaGenerator::generate();
+        TriviaGenerator::new().expect("Failed to load generator");
     }
 }

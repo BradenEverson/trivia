@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" href="./favicon.ico" type="image/x-icon" />
+        <link rel="stylesheet" href="./style.css"/>
+        <title>Geography Trivia Challenge!</title>
+    </head>
+
+    <body>
+        <div class="container">
+            <div id="question" class="question">Loading...</div>
+            <div id="answers" class="answers"></div>
+        </div>
+
+        <footer>Made with Love and Rust 🦀</footer>
+
+        <script type="module">
+            import init, { TriviaGenerator } from "./wasm/trivia.js";
+            await init();
+
+            function getTodayString() {
+                const today = new Date();
+                return today.toISOString().split("T")[0];
+            }
+
+            const todayKey = `trivia_answered_${getTodayString()}`;
+            const alreadyAnswered = localStorage.getItem(todayKey);
+
+            const trivia = TriviaGenerator.new();
+            if (!trivia) {
+                alert("Trivia generator failed to load");
+                throw new Error("Failed to load trivia generator");
+            }
+
+            const questionToday = trivia.get_question();
+            const answers = questionToday.get_answers();
+
+            const questionElement = document.getElementById("question");
+            const answersContainer = document.getElementById("answers");
+
+            if (alreadyAnswered) {
+                questionElement.textContent = "You already answered today's question! Come back tomorrow for a new one.";
+            } else {
+                questionElement.textContent = questionToday.get_name();
+
+                answers.forEach((answer) => {
+                    const button = document.createElement("button");
+                    button.classList.add("answer");
+                    button.textContent = answer;
+
+                    button.addEventListener("click", () => {
+                        const isCorrect = questionToday.is_correct(answer);
+                        alert(isCorrect ? "Correct! 🎉" : "Incorrect. :((");
+
+                        localStorage.setItem(todayKey, "true");
+
+                        document.querySelectorAll(".answer").forEach((btn) => {
+                            btn.disabled = true;
+                            btn.style.display = "none";
+                        });
+
+                        questionElement.textContent = "Thank you for answering! Come back tomorrow for a new question.";
+                    });
+
+                    answersContainer.appendChild(button);
+                });
+            }
+        </script>
+    </body>
+</html>
+
