@@ -1,0 +1,15 @@
+{
+  "name": "trivia",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "trivia_bg.wasm",
+    "trivia.js",
+    "trivia.d.ts"
+  ],
+  "main": "trivia.js",
+  "types": "trivia.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
